@@ -37,13 +37,10 @@ export class JwtService {
         const key = algorithm === 'RS256' ? config.PUBLIC_KEY : config.JWT_SECRET;
 
         if (!key) {
-            return null;
+            throw new Error(`Clave de verificación (${algorithm}) no configurada.`);
         }
 
-        try {
-            return jwt.verify(token, key, { algorithms: [algorithm] });
-        } catch (error) {
-            return null;
-        }
+        // Permite que jwt.verify lance errores (TokenExpiredError, JsonWebTokenError) para un manejo detallado
+        return jwt.verify(token, key, { algorithms: [algorithm] });
     }
 }
