@@ -4,16 +4,27 @@ import { config } from '../config/env.js';
 export class JwtService {
     /**
      * Firma un token JWT basándose en el algoritmo configurado.
-     * @param {Object} payload - Los datos del usuario a incluir en el token.
+     * @param {Object} user - Los datos del usuario a incluir en el token.
      * @returns {string} El token JWT generado.
      */
-    static signToken(payload) {
-        // TODO: Implementar lógica de firmado.
-        // 1. Verificar si config.ALGORITHM es 'RS256' o 'HS256'.
-        // 2. Si es 'RS256', usar config.PRIVATE_KEY.
-        // 3. Si es 'HS256', usar config.JWT_SECRET.
-        // 4. Establecer un tiempo de expiración (ej. 1h).
-        // 5. Retornar el token firmado usando jwt.sign().
+    static signToken(user) {
+        const algorithm = config.ALGORITHM || 'HS256';
+        const key = algorithm === 'RS256' ? config.PRIVATE_KEY : config.JWT_SECRET;
+
+        if (!key) {
+            throw new Error(`Clave para firma (${algorithm}) no configurada.`);
+        }
+
+        const now = Math.floor(Date.now() / 1000);
+        const exp = now + 60; // Expiración exacta de 1 minuto
+
+        const payload = {
+            sub: user.id || user.sub,
+            name: user.name,
+            exp
+        };
+
+        return jwt.sign(payload, key, { algorithm, noTimestamp: true });
     }
 
     /**
@@ -22,11 +33,17 @@ export class JwtService {
      * @returns {Object|null} El payload decodificado o null si es inválido.
      */
     static verifyToken(token) {
-        // TODO: Implementar lógica de verificación.
-        // 1. Verificar si config.ALGORITHM es 'RS256' o 'HS256'.
-        // 2. Si es 'RS256', usar config.PUBLIC_KEY para verificar.
-        // 3. Si es 'HS256', usar config.JWT_SECRET para verificar.
-        // 4. Retornar el payload decodificado usando jwt.verify().
-        // 5. Manejar posibles errores (token expirado, firma inválida) y retornar null.
+        const algorithm = config.ALGORITHM || 'HS256';
+        const key = algorithm === 'RS256' ? config.PUBLIC_KEY : config.JWT_SECRET;
+
+        if (!key) {
+            return null;
+        }
+
+        try {
+            return jwt.verify(token, key, { algorithms: [algorithm] });
+        } catch (error) {
+            return null;
+        }
     }
 }
