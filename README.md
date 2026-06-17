@@ -54,13 +54,17 @@ PUBLIC_KEY_PATH=./public.pem
 
 ---
 
-## Ejecución del Servidor
+## Ejecución del Servidor y Consola de Pruebas
 
-Inicie el servidor Express:
+1. Inicie el servidor Express:
 ```bash
 node index.js
 ```
-El servidor escuchará peticiones en la dirección `http://localhost:3000`.
+2. Acceda a la interfaz gráfica en su navegador:
+El servidor sirve un panel interactivo de pruebas en la dirección raíz:
+[http://localhost:3000/](http://localhost:3000/)
+
+Esta interfaz permite ejecutar visualmente todas las simulaciones de autenticación, consumo de recursos stateless y validación de excepciones de seguridad sin necesidad de utilizar herramientas de red externas (como Curl o Postman).
 
 ---
 
