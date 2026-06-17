@@ -3,3 +3,4 @@ node_modules/
 private.pem
 public.pem
 .DS_Store
+test.js
