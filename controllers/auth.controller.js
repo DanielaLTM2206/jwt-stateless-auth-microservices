@@ -5,7 +5,7 @@ export class AuthController {
      * Simula un servidor de autenticación que genera un token.
      */
     static async generateToken(req, res) {
-        const { username, password } = req.body;
+        const { username, password, simulateExpired } = req.body;
 
         // Validar credenciales de forma simulada
         if (username === 'admin' && password === 'admin123') {
@@ -15,7 +15,7 @@ export class AuthController {
             };
 
             try {
-                const token = JwtService.signToken(user);
+                const token = JwtService.signToken(user, { expired: !!simulateExpired });
                 return res.status(200).json({ token });
             } catch (error) {
                 return res.status(500).json({ error: 'Error al generar el token' });

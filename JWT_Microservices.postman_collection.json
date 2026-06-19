@@ -1,0 +1,118 @@
+{
+	"info": {
+		"_postman_id": "7c7cd96c-0754-41fc-88df-8c7abe12ddb8",
+		"name": "JWT Microservices Simulation",
+		"description": "Colección de peticiones para simular la generación de tokens JWT y acceso stateless a los microservicios Alpha y Beta.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Generar Token (Login)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const response = pm.response.json();",
+							"if (response.token) {",
+							"    pm.collectionVariables.set(\"token\", response.token);",
+							"    console.log(\"Token guardado en variable de colección 'token'\");",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/auth/token",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"auth",
+						"token"
+					]
+				},
+				"description": "Envía credenciales de administrador simuladas para generar un token JWT firmado asimétricamente con expiración de 1 minuto."
+			},
+			"response": []
+		},
+		{
+			"name": "2. Acceso Microservicio Alpha",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/v1/service-alpha/private",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"v1",
+						"service-alpha",
+						"private"
+					]
+				},
+				"description": "Acceso protegido por JWT al Microservicio Alpha."
+			},
+			"response": []
+		},
+		{
+			"name": "3. Acceso Microservicio Beta",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/v1/service-beta/private",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"v1",
+						"service-beta",
+						"private"
+					]
+				},
+				"description": "Acceso protegido por JWT al Microservicio Beta."
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}

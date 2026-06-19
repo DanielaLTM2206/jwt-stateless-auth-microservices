@@ -93,6 +93,39 @@ Valida credenciales simuladas y firma un token JWT.
 
 ---
 
+## Guía de Pruebas Técnicas con Postman y Evidencias
+
+Para facilitar la ejecución de pruebas técnicas, se incluye la colección oficial de Postman lista para ser importada:
+- **Colección**: [JWT_Microservices.postman_collection.json](JWT_Microservices.postman_collection.json)
+
+A continuación se detallan las pruebas técnicas realizadas que demuestran el flujo completo del sistema con sus respectivas capturas de pantalla de evidencias:
+
+### 1. Generación Exitosa del Token (Login)
+- **Endpoint**: `POST /auth/token`
+- **Descripción**: Envío de credenciales correctas (`admin` / `admin123`) para obtener un token JWT firmado mediante criptografía asimétrica RS256 con un tiempo de expiración de 1 minuto.
+- **Evidencia en Postman**:
+  ![Generación exitosa del token](public/images/postman_token_generation.png)
+
+### 2. Acceso Válido al Microservicio Alpha (Flujo Feliz)
+- **Endpoint**: `GET /v1/service-alpha/private`
+- **Descripción**: Acceso exitoso al recurso privado del Microservicio Alpha enviando el token generado en la cabecera `Authorization: Bearer <TOKEN>`.
+- **Evidencia en Postman**:
+  ![Acceso exitoso al Microservicio Alpha](public/images/postman_service_alpha.png)
+
+### 3. Acceso Válido al Microservicio Beta (Flujo Feliz)
+- **Endpoint**: `GET /v1/service-beta/private`
+- **Descripción**: Acceso exitoso al recurso privado del Microservicio Beta enviando el token generado en la cabecera `Authorization: Bearer <TOKEN>`.
+- **Evidencia en Postman**:
+  ![Acceso exitoso al Microservicio Beta](public/images/postman_service_beta.png)
+
+### 4. Captura de Error Controlado por Expiración (1 Minuto Transcurrido)
+- **Endpoint**: `GET /v1/service-alpha/private` (o `/v1/service-beta/private`)
+- **Descripción**: Una vez transcurrido el minuto de validez del JWT, el cliente intenta acceder a los microservicios. El middleware del servidor intercepta la expiración y retorna un error controlado `401 Unauthorized` con el mensaje informativo detallado.
+- **Evidencia en Postman**:
+  ![Captura de error por expiración](public/images/postman_token_expired.png)
+
+---
+
 ## Investigación Teórica: Integración de Refresh Tokens
 
 ### 1. Dado que los JWT son Stateless y en nuestra práctica expiran en 1 minuto, ¿de qué manera la implementación teórica de un Refresh Token solucionaría la experiencia del usuario sin comprometer la seguridad de los servicios distribuidos?
