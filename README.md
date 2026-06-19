@@ -66,6 +66,9 @@ El servidor sirve un panel interactivo de pruebas en la dirección raíz:
 
 Esta interfaz permite ejecutar visualmente todas las simulaciones de autenticación, consumo de recursos stateless y validación de excepciones de seguridad sin necesidad de utilizar herramientas de red externas (como Curl o Postman).
 
+**Vista de la Interfaz Web (Consola de Pruebas)**:
+![Consola de Verificación JWT](public/images/web_interface.png)
+
 ---
 
 ## Endpoints de la API
