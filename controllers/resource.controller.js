@@ -3,6 +3,11 @@ export class ResourceController {
      * Simula un recurso privado del Microservicio Alpha.
      */
     static getAlphaPrivateData(req, res) {
+        // Simular fallo de conexión a base de datos (Error Operacional)
+        if (req.query.simulateError === 'true') {
+            throw new Error("Conexión perdida con la BDD");
+        }
+
         return res.status(200).json({
             message: 'Acceso exitoso al recurso privado del Microservicio Alpha (flujo stateless garantizado)',
             service: 'Service Alpha',
