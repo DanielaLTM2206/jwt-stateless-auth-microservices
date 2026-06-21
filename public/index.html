@@ -514,6 +514,16 @@
                                 <button class="btn btn-secondary btn-danger" style="color:#fff;" onclick="testOperationalError()">Probar (500)</button>
                             </div>
                         </div>
+
+                        <div class="test-item">
+                            <div class="test-item-info">
+                                <span class="test-item-title">Fallo Operacional Beta (Tags)</span>
+                                <span class="test-item-desc">Simula un fallo crítico (Fallo de conexión en Service Beta) con Tags y Contexto en Sentry.</span>
+                            </div>
+                            <div class="test-item-action">
+                                <button class="btn btn-secondary btn-danger" style="color:#fff;" onclick="testBetaOperationalError()">Probar (500)</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -744,6 +754,23 @@
             }
             try {
                 const res = await fetch('/v1/service-alpha/private?simulateError=true', {
+                    headers: { 'Authorization': `Bearer ${currentToken}` }
+                });
+                const status = res.status;
+                const data = await res.json();
+                updateConsole(status, data);
+            } catch (error) {
+                updateConsole(500, { error: 'Error de Red', message: error.message });
+            }
+        }
+
+        async function testBetaOperationalError() {
+            if (!currentToken) {
+                updateConsole(400, { error: 'Validación local', message: 'Debe generar primero un token JWT válido en el Paso 1.' });
+                return;
+            }
+            try {
+                const res = await fetch('/v1/service-beta/private?simulateError=true', {
                     headers: { 'Authorization': `Bearer ${currentToken}` }
                 });
                 const status = res.status;
