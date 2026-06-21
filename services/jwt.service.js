@@ -7,7 +7,7 @@ export class JwtService {
      * @param {Object} user - Los datos del usuario a incluir en el token.
      * @returns {string} El token JWT generado.
      */
-    static signToken(user) {
+    static signToken(user, options = {}) {
         const algorithm = config.ALGORITHM || 'HS256';
         const key = algorithm === 'RS256' ? config.PRIVATE_KEY : config.JWT_SECRET;
 
@@ -16,7 +16,8 @@ export class JwtService {
         }
 
         const now = Math.floor(Date.now() / 1000);
-        const exp = now + 60; // Expiración exacta de 1 minuto
+        // Permitir la simulación de tokens ya expirados en el pasado
+        const exp = options.expired ? (now - 60) : (now + 60);
 
         const payload = {
             sub: user.id || user.sub,
