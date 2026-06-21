@@ -1,21 +1,16 @@
 import { JwtService } from '../services/jwt.service.js';
+import { LogicalError } from '../errors/LogicalError.js';
 
 export const authMiddleware = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     
     // Control de ausencia de token
     if (!authHeader) {
-        return res.status(401).json({ 
-            error: 'Acceso denegado', 
-            message: 'Token de autorización ausente' 
-        });
+        throw new LogicalError('Token de autorización ausente', 401);
     }
 
     if (!authHeader.startsWith('Bearer ')) {
-        return res.status(400).json({ 
-            error: 'Petición inválida', 
-            message: 'El formato del token debe ser Bearer <token>' 
-        });
+        throw new LogicalError('El formato del token debe ser Bearer <token>', 400);
     }
 
     const token = authHeader.split(' ')[1];
@@ -25,26 +20,27 @@ export const authMiddleware = (req, res, next) => {
         req.user = decoded;
         next();
     } catch (error) {
+        // Si es un error de configuración del servidor (ej. llaves no encontradas), propagarlo como operacional
+        if (error.message && error.message.includes('no configurada')) {
+            throw error;
+        }
+
         // Control de expiración del token
         if (error.name === 'TokenExpiredError') {
-            return res.status(401).json({ 
-                error: 'Token expirado', 
-                message: 'El token ha expirado. Por favor, genere uno nuevo.' 
-            });
+            throw new LogicalError('El token ha expirado. Por favor, genere uno nuevo.', 401);
         }
         
         // Control de algoritmo inválido
         if (error.message && error.message.includes('invalid algorithm')) {
-            return res.status(400).json({ 
-                error: 'Algoritmo inválido', 
-                message: 'El algoritmo de firma del token no coincide con el configurado en el servidor' 
-            });
+            throw new LogicalError('El algoritmo de firma del token no coincide con el configurado en el servidor', 400);
         }
 
         // Otros errores de JWT (JsonWebTokenError, firma inválida, etc.)
-        return res.status(403).json({ 
-            error: 'Acceso prohibido', 
-            message: error.message || 'Token inválido' 
-        });
+        if (error.name === 'JsonWebTokenError' || error.message.includes('jwt malformed') || error.message.includes('invalid signature')) {
+            throw new LogicalError(error.message || 'Token inválido', 403);
+        }
+
+        // Cualquier otro error inesperado se propaga como operacional
+        throw error;
     }
 };

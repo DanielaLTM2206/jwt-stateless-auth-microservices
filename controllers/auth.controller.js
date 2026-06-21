@@ -1,4 +1,5 @@
 import { JwtService } from '../services/jwt.service.js';
+import { LogicalError } from '../errors/LogicalError.js';
 
 export class AuthController {
     /**
@@ -14,14 +15,12 @@ export class AuthController {
                 name: 'Daniela Tituaña'
             };
 
-            try {
-                const token = JwtService.signToken(user, { expired: !!simulateExpired });
-                return res.status(200).json({ token });
-            } catch (error) {
-                return res.status(500).json({ error: 'Error al generar el token' });
-            }
+            // No capturar el error localmente para permitir que los fallos operacionales
+            // (como llaves no configuradas) se propaguen a Sentry
+            const token = JwtService.signToken(user, { expired: !!simulateExpired });
+            return res.status(200).json({ token });
         }
 
-        return res.status(401).json({ error: 'Credenciales inválidas' });
+        throw new LogicalError('Credenciales inválidas', 401);
     }
 }
